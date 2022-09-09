@@ -9,8 +9,8 @@ from rest_framework.response import Response
 from base.ml.load_glove_pretrain import GlovePretrain
 from base.ml.lstm_model import LSTMClassifier
 from base.ml.preprocessing import Preprocessing
-from base.models import Product, Review
-from base.serializers import ProductSerializer
+from base.models import Product, Review, ReviewManagement
+from base.serializers import ProductSerializer, ReviewSerializer, ReviewManagementSerializer
 from django.db.models import Count
 
 from django.conf import settings
@@ -125,6 +125,70 @@ def getRandomProduct(request):
     return Response(serializer.data)
 
 
+# Get all reviews
+@api_view(['GET'])
+def getReviews(request):
+    # page
+    page = request.query_params.get('page')
+    if page == None or page == '' or page == 'undefined':
+        page = 1
+    page = int(page)
+
+    # rating
+    rating = request.query_params.get('rating')
+    if rating == None or rating == '':
+        rating = ''
+
+    # sentiment
+    sentiment = request.query_params.get('sentiment')
+    if sentiment == None or sentiment == '':
+        sentiment = ''
+
+    # hide khac 2 (delete)
+    reviews = Review.objects.all() \
+        .filter(rating__icontains=rating) \
+        .filter(sentiment__icontains=sentiment) \
+        .exclude(hide=2) \
+        .order_by('-createdAt')
+
+    paginator = Paginator(reviews, 10)
+
+    try:
+        reviews = paginator.page(page)
+    except PageNotAnInteger:
+        reviews = paginator.page(1)
+    except EmptyPage:
+        reviews = paginator.page(paginator.num_pages)
+
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response({'reviews': serializer.data, 'page': page, 'pages': paginator.num_pages})
+
+
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def updateSentiment(request, pk):
+    data = request.data
+    print(data)
+    review = Review.objects.get(_id=pk)
+    if data['sentiment'] != 'None':
+        review.sentiment = data['sentiment']
+    if data['hide'] != 'None':
+        review.hide = data['hide']
+
+    review.save()
+
+    serializer = ReviewSerializer(review, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def getReviewManagement(request):
+    review_management = ReviewManagement.objects.get(_id=1)
+    print(review_management.autoHide)
+    # serialize = ReviewManagementSerializer(review_management,many=False)
+    return Response({'review_management': True})
+
+
 @api_view(['GET'])
 def getProduct(request, pk):
     product = Product.objects.get(_id=pk)
@@ -205,6 +269,7 @@ def uploadImage(request):
     return Response('Image was uploaded')
 
 
+# begin
 glove_pretrain = GlovePretrain()
 
 @api_view(['GET'])
@@ -219,35 +284,8 @@ def getMostSimilarWords(request):
     # words = get_similar_words(expression, number)
     similar_words = glove_pretrain.getSimilar(expression, number)
 
-    # arr = [
-    #     {
-    #         'text': 'told',
-    #         'value': 15,
-    #     },
-    #     {
-    #         'text': 'mistake',
-    #         'value': 1521,
-    #     },
-    #     {
-    #         'text': 'thought',
-    #         'value': 1566,
-    #     },
-    #     {
-    #         'text': 'told',
-    #         'value': 15,
-    #     },
-    #     {
-    #         'text': 'mistake',
-    #         'value': 1521,
-    #     },
-    #     {
-    #         'text': 'thought',
-    #         'value': 1566,
-    #     },
-    # ]
-
     return JsonResponse(similar_words, safe=False)
-
+# end
 
 @api_view(['GET'])
 def getSentimentsCircle(request):
@@ -356,7 +394,7 @@ def getSentimentsLine(request):
         sentiments = sentiments.order_by('createdAt')
     return JsonResponse(list(sentiments), safe=False)
 
-
+# begin
 lstm_classifier = LSTMClassifier()
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -408,3 +446,4 @@ def createProductReview(request, pk):
         product.save()
 
         return Response('Review Added')
+# end

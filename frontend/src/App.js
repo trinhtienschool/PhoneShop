@@ -26,6 +26,7 @@ import LineChart from "./components/SentimentLineChart";
 import SimilarWordCloud from "./components/SimilarWordCloud";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
+import ReviewListScreen from "./screens/ReviewListScreen";
 
 
 function App() {
@@ -79,12 +80,14 @@ function App() {
                           <Route path='/admin/userlist' component={UserListScreen} />
           <Route path='/admin/user/:id/edit' component={UserEditScreen} />
             <Route path='/admin/productlist' component={ProductListScreen}  exact/>
+
           <Route path='/admin/productlist/page/:pageNum' component={ProductListScreen} />
           <Route path='/admin/product/:id/edit' component={ProductEditScreen} />
 
           <Route path='/admin/orderlist' component={OrderListScreen} />
                 <Route path='/admin/dashboard' component={DashboardScreen} />
-
+                <Route path='/admin/reviewlist' component={ReviewListScreen}  exact/>
+                <Route path='/admin/reviewlist/page/:pageNum' component={ReviewListScreen}/>
 
 
                 </Switch>

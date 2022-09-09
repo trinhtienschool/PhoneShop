@@ -53,7 +53,16 @@ import {
     SIMILAR_WORD_CLOUD_REQUEST,
     SIMILAR_WORD_CLOUD_SUCCESS,
     SIMILAR_WORD_CLOUD_FAIL,
-    USER_BUY_PRODUCT_REQUEST, USER_BUY_PRODUCT_SUCCESS, USER_BUY_PRODUCT_FAIL
+    USER_BUY_PRODUCT_REQUEST,
+    USER_BUY_PRODUCT_SUCCESS,
+    USER_BUY_PRODUCT_FAIL,
+    REVIEW_ALL_LIST_REQUEST,
+    REVIEW_ALL_LIST_SUCCESS,
+    REVIEW_ALL_LIST_FAIL,
+    REVIEW_DELETE_REQUEST,
+    REVIEW_DELETE_SUCCESS,
+    REVIEW_DELETE_FAIL,
+    REVIEW_UPDATE_REQUEST, REVIEW_UPDATE_FAIL, REVIEW_UPDATE_RESET, REVIEW_UPDATE_SUCCESS
 } from '../constants/productConstants'
 
 
@@ -123,7 +132,27 @@ export const productAllListReducer = (state = { products: [] }, action) => {
             return state
     }
 }
+export const reviewAllListReducer = (state = { reviews: [] }, action) => {
+    console.log('Action type All list: ',action.type)
+    switch (action.type) {
+        case REVIEW_ALL_LIST_REQUEST:
+            return { loading: true, reviews: [] }
 
+        case REVIEW_ALL_LIST_SUCCESS:
+            return {
+                loading: false,
+                reviews: action.payload.reviews,
+                page: action.payload.page,
+                pages: action.payload.pages
+            }
+
+        case REVIEW_ALL_LIST_FAIL:
+            return { loading: false, error: action.payload }
+
+        default:
+            return state
+    }
+}
 export const productIdNameReducer = (state = { products: [] }, action) => {
     switch (action.type) {
         case PRODUCT_ID_NAME_REQUEST:
@@ -251,6 +280,21 @@ export const productDeleteReducer = (state = {}, action) => {
             return state
     }
 }
+export const reviewDeleteReducer = (state = {}, action) => {
+    switch (action.type) {
+        case REVIEW_DELETE_REQUEST:
+            return { loading: true }
+
+        case REVIEW_DELETE_SUCCESS:
+            return { loading: false, success: true }
+
+        case REVIEW_DELETE_FAIL:
+            return { loading: false, error: action.payload }
+
+        default:
+            return state
+    }
+}
 
 
 
@@ -286,6 +330,24 @@ export const productUpdateReducer = (state = { product: {} }, action) => {
             return { loading: false, error: action.payload }
 
         case PRODUCT_UPDATE_RESET:
+            return { product: {} }
+
+        default:
+            return state
+    }
+}
+export const reviewUpdateReducer = (state = { review: {} }, action) => {
+    switch (action.type) {
+        case REVIEW_UPDATE_REQUEST:
+            return { loading: true }
+
+        case REVIEW_UPDATE_SUCCESS:
+            return { loading: false, success: true, review: action.payload }
+
+        case REVIEW_UPDATE_FAIL:
+            return { loading: false, error: action.payload }
+
+        case REVIEW_UPDATE_RESET:
             return { product: {} }
 
         default:

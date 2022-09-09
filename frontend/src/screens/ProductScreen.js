@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
-import {Link} from 'react-router-dom'
+import {Link, useParams} from 'react-router-dom'
 import {Row, Col, Image, ListGroup, Button, Card, Form, Container} from 'react-bootstrap'
 import Rating from '../components/Rating'
 import Loader from '../components/Loader'
@@ -10,6 +10,9 @@ import {PRODUCT_CREATE_REVIEW_RESET} from '../constants/productConstants'
 import {domain} from "../env";
 
 function ProductScreen({match, history}) {
+      const {
+        id = 1
+    } = useParams();
     const [qty, setQty] = useState(1)
     const [rating, setRating] = useState(0)
     const [comment, setComment] = useState('')
@@ -46,7 +49,7 @@ function ProductScreen({match, history}) {
     //Load user buy product
     useEffect(() => {
         if (userInfo) {
-            dispatch(userBuyProduct(userInfo._id, product._id))
+            dispatch(userBuyProduct(userInfo._id, id))
         }
     }, [dispatch, userInfo, product])
 

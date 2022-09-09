@@ -44,8 +44,18 @@ class Review(models.Model):
         max_digits=7, decimal_places=2, null=True, blank=True)
     positive = models.DecimalField(
         max_digits=7, decimal_places=2, null=True, blank=True)
+    hide = models.SmallIntegerField(default=-1)
+
     def __str__(self):
         return str(self.rating)
+
+
+class ReviewManagement(models.Model):
+    _id = models.AutoField(primary_key=True, editable=False)
+    autoHide = models.SmallIntegerField(default=-1)
+
+    def __str__(self):
+        return str(self.autoHide)
 
 
 class Order(models.Model):
@@ -97,10 +107,12 @@ class ShippingAddress(models.Model):
     def __str__(self):
         return str(self.address)
 
+
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
     # reverse('password_reset:reset-password-request')
-    email_plaintext_message = "Please click this link to reset password: {}/{}".format('http://localhost:3000/#/reset-password', reset_password_token.key)
+    email_plaintext_message = "Please click this link to reset password: {}/{}".format(
+        'http://localhost:3000/#/reset-password', reset_password_token.key)
 
     send_mail(
         # title:

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Product, Order, OrderItem, ShippingAddress, Review
+from .models import Product, Order, OrderItem, ShippingAddress, Review, ReviewManagement
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -40,8 +40,17 @@ class UserSerializerWithToken(UserSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name')
     class Meta:
         model = Review
+        fields = ('_id', 'name', 'rating','sentiment','comment','product_name','hide','createdAt','negative','neutral','positive','user_id','product_id')
+
+
+
+
+class ReviewManagementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewManagement
         fields = '__all__'
 
 
@@ -53,7 +62,12 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_reviews(self, obj):
-        reviews = obj.review_set.all()
+        #load autohide
+        review_management = ReviewManagement.objects.get(_id=1)
+        autoHide = review_management.autoHide
+
+        #chi load comment co sentiment#autohide va hide=-1
+        reviews = obj.review_set.all().exclude(sentiment__icontains=autoHide).filter(hide=-1)
         serializer = ReviewSerializer(reviews, many=True)
         return serializer.data
 
@@ -96,6 +110,7 @@ class OrderSerializer(serializers.ModelSerializer):
         user = obj.user
         serializer = UserSerializer(user, many=False)
         return serializer.data
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     model = User

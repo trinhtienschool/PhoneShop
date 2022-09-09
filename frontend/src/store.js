@@ -17,7 +17,7 @@ import {
     sentimentBarChartReducer,
     productIdNameReducer,
     similarWordCloudReducer,
-    userBuyProductReducer
+    userBuyProductReducer, reviewAllListReducer, reviewDeleteReducer, reviewUpdateReducer
 } from './reducers/productReducers'
 
 import { cartReducer } from './reducers/cartReducers'
@@ -44,6 +44,7 @@ import {
 const reducer = combineReducers({
     productList: productListReducer,
     productAllList: productAllListReducer,
+    reviewAllList: reviewAllListReducer,
     similarWordCloud: similarWordCloudReducer,
     productIdName: productIdNameReducer,
     sentimentCircleChart: sentimentCircleChartReducer,
@@ -52,8 +53,10 @@ const reducer = combineReducers({
     userBuyProduct: userBuyProductReducer,
     productDetails: productDetailsReducer,
     productDelete: productDeleteReducer,
+    reviewDelete: reviewDeleteReducer,
     productCreate: productCreateReducer,
     productUpdate: productUpdateReducer,
+    reviewUpdate: reviewUpdateReducer,
     productReviewCreate: productReviewCreateReducer,
     productTopRated: productTopRatedReducer,
     productRandom: productRandomReducer,

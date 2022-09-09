@@ -129,6 +129,8 @@ function DashboardScreen({history}) {
                                       fontWeight: 'bold'
                                   } : {}}>
                                 <i className="fa fa-shopping-cart mr-3"></i>Order</Link>
+                             <Link to={`/admin/reviewlist`} className="list-group-item list-group-item-action waves-effect" style={useLocation().pathname.includes('reviewlist')?{color:'#2196f3',fontWeight: 'bold'}:{}}>
+                                <i className="fa fa-box mr-3"></i>Review</Link>
 
                         </div>
                     </div>

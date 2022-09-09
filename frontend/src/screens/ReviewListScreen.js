@@ -5,11 +5,18 @@ import {useDispatch, useSelector} from 'react-redux'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
 import Paginate from '../components/Paginate'
-import {listProducts, deleteProduct, createProduct, listAllProducts} from '../actions/productActions'
+import {
+    listProducts,
+    deleteProduct,
+    createProduct,
+    listAllProducts,
+    listAllReviews,
+    updateReview
+} from '../actions/productActions'
 import {PRODUCT_CREATE_RESET} from '../constants/productConstants'
 import {Link, useLocation, useParams} from "react-router-dom";
 
-function ProductListScreen({history, match}) {
+function ReviewListScreen({history, match}) {
     const {
         pageNum = 1
     } = useParams();
@@ -19,7 +26,7 @@ function ProductListScreen({history, match}) {
     useEffect(() => {
         console.log("Product List Screen: ", pageNum)
         dispatch(
-            listAllProducts(pageNum)
+            listAllReviews(pageNum)
         );
     }, [dispatch, pageNum]);
     // const productList = useSelector(state => state.productList)
@@ -27,47 +34,77 @@ function ProductListScreen({history, match}) {
 
     // console.log('ProductListScreen: ', productAllList)
 
-    const productAllList = useSelector(state => state.productAllList)
-    const {loading, error, products, pages, page} = productAllList
+    const reviewAllList = useSelector(state => state.reviewAllList)
+    const {loading, error, reviews, pages, page} = reviewAllList
 
 
-    const productDelete = useSelector(state => state.productDelete)
-    const {loading: loadingDelete, error: errorDelete, success: successDelete} = productDelete
+    // const reviewDelete = useSelector(state => state.productDelete)
+    // const {loading: loadingDelete, error: errorDelete, success: successDelete} = productDelete
 
-    const productCreate = useSelector(state => state.productCreate)
-    const {loading: loadingCreate, error: errorCreate, success: successCreate, product: createdProduct} = productCreate
+     const reviewUpdate = useSelector(state => state.reviewUpdate)
+    const { error: errorUpdate, loading: loadingUpdate, success: successUpdate } = reviewUpdate
+
+
+    // const productCreate = useSelector(state => state.productCreate)
+    // const {loading: loadingCreate, error: errorCreate, success: successCreate, product: createdProduct} = productCreate
 
 
     const userLogin = useSelector(state => state.userLogin)
     const {userInfo} = userLogin
 
     let keyword = history.location.search
-    useEffect(() => {
-        dispatch({type: PRODUCT_CREATE_RESET})
+    // useEffect(() => {
+    //     dispatch({type: PRODUCT_CREATE_RESET})
+    //
+    //     if (!userInfo.isAdmin) {
+    //         history.push('/login')
+    //     }
+    //
+    //     if (successCreate) {
+    //         history.push(`/admin/product/${createdProduct._id}/edit`)
+    //     } else {
+    //         dispatch(listAllProducts())
+    //     }
+    //
+    // }, [dispatch, history, userInfo, successDelete, successCreate, createdProduct, keyword])
+    const sentimentHandler = (id,sentiment) => {
 
-        if (!userInfo.isAdmin) {
-            history.push('/login')
+        if (window.confirm(`Are you sure you want to change sentiment this comment?`)) {
+            dispatch(updateReview({
+            _id: id,
+            hide:'None',
+                sentiment:sentiment
+        }))
+            dispatch(listAllReviews(pageNum))
         }
+    }
+const hideHandler = (id,hide, description) => {
 
-        if (successCreate) {
-            history.push(`/admin/product/${createdProduct._id}/edit`)
-        } else {
-            dispatch(listAllProducts())
+        if (window.confirm(`Are you sure you want to ${description} this comment?`)) {
+            dispatch(updateReview({
+            _id: id,
+            hide:hide,
+                sentiment:'None'
+        }))
+            dispatch(listAllReviews(pageNum))
         }
-
-    }, [dispatch, history, userInfo, successDelete, successCreate, createdProduct, keyword])
-
+    }
 
     const deleteHandler = (id) => {
 
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            dispatch(deleteProduct(id))
+        if (window.confirm('Are you sure you want to delete this comment?')) {
+            dispatch(updateReview({
+            _id: id,
+            hide:2,
+                sentiment:'None'
+        }))
+            dispatch(listAllReviews(pageNum))
         }
     }
 
-    const createProductHandler = () => {
-        dispatch(createProduct())
-    }
+    // const createProductHandler = () => {
+    //     dispatch(createProduct())
+    // }
     const range = (start, end, total_pages) => {
 
         let output = [];
@@ -238,7 +275,7 @@ function ProductListScreen({history, match}) {
                                 <i className="fa fa-user mr-3"></i>User</Link>
                             <Link to={`/admin/orderlist`} className="list-group-item list-group-item-action waves-effect" style={useLocation().pathname.includes('orderlist')?{color:'#2196f3',fontWeight: 'bold'}:{}}>
                                 <i className="fa fa-shopping-cart mr-3"></i>Order</Link>
-                             <Link to={`/admin/reviewlist`} className="list-group-item list-group-item-action waves-effect" style={useLocation().pathname.includes('reviewlist')?{color:'#2196f3',fontWeight: 'bold'}:{}}>
+                            <Link to={`/admin/reviewlist`} className="list-group-item list-group-item-action waves-effect" style={useLocation().pathname.includes('reviewlist')?{color:'#2196f3',fontWeight: 'bold'}:{}}>
                                 <i className="fa fa-box mr-3"></i>Review</Link>
 
                         </div>
@@ -249,13 +286,13 @@ function ProductListScreen({history, match}) {
                             <div className="card-body d-sm-flex justify-content-between" style={{padding:'5px'}} >
 
                                 <h3 className="pt-3 pl-3">
-                                    Product list
+                                    Review list
                                 </h3>
-                                <Col className='d-flex justify-content-end'>
-                                    <Button onClick={createProductHandler}>
-                                        <i className='fas fa-plus'></i> Create Product
-                                    </Button>
-                                </Col>
+                                {/*<Col className='d-flex justify-content-end'>*/}
+                                {/*    <Button >*/}
+                                {/*        <i className='fas fa-plus'></i> Create Product*/}
+                                {/*    </Button>*/}
+                                {/*</Col>*/}
 
 
                             </div>
@@ -266,12 +303,12 @@ function ProductListScreen({history, match}) {
                         <div>
 
 
-                            {loadingDelete && <Loader/>}
-                            {errorDelete && <Message variant='danger'>{errorDelete}</Message>}
+                            {loadingUpdate && <Loader/>}
+                            {errorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
 
 
-                            {loadingCreate && <Loader/>}
-                            {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
+                            {/*{loadingCreate && <Loader/>}*/}
+                            {/*{errorCreate && <Message variant='danger'>{errorCreate}</Message>}*/}
 
                             {loading
                                 ? (<Loader/>)
@@ -283,32 +320,65 @@ function ProductListScreen({history, match}) {
                                                 <thead>
                                                 <tr>
                                                     <th>ID</th>
-                                                    <th>NAME</th>
-                                                    <th>PRICE</th>
-                                                    <th>CATEGORY</th>
-                                                    <th>BRAND</th>
-                                                    <th></th>
+                                                    <th>USER</th>
+                                                    <th>PRODUCT</th>
+                                                    <th>RATING</th>
+                                                    <th>COMMENT</th>
+                                                    <th>SENTIMENT</th>
+                                                    <th>Relabel</th>
+                                                    <th>Action</th>
                                                 </tr>
                                                 </thead>
 
                                                 <tbody>
-                                                {products.map(product => (
-                                                    <tr key={product._id}>
-                                                        <td>{product._id}</td>
-                                                        <td>{product.name}</td>
-                                                        <td>${product.price}</td>
-                                                        <td>{product.category}</td>
-                                                        <td>{product.brand}</td>
+                                                {reviews.map(review => (
+                                                    <tr key={review._id}>
+                                                        <td>{review._id}</td>
+                                                        <td>{review.name}</td>
+                                                        <td>{review.product_name}</td>
+                                                        <td>{review.rating}</td>
+                                                        <td>{review.comment}</td>
+                                                        <td>
+                                                            {review.sentiment==0?'Negative':review.sentiment==1?'Neutral':'Positive'}
+                                                        </td>
 
                                                         <td>
-                                                            <LinkContainer to={`/admin/product/${product._id}/edit`}>
-                                                                <Button variant='light' className='btn-sm'>
-                                                                    <i className='fas fa-edit'></i>
-                                                                </Button>
-                                                            </LinkContainer>
 
+                                                            <Button disabled={review.sentiment==0?true:false} variant={review.sentiment==0?"danger":"muted"} className='btn-sm'
+                                                                    onClick={() => sentimentHandler(review._id, 0)}>
+                                                               Negative
+
+                                                            </Button>
+                                                            <Button disabled={review.sentiment==1?true:false} variant={review.sentiment==1?"warning":"muted"} className='btn-sm'
+                                                                    onClick={() => sentimentHandler(review._id, 1)}>
+                                                               Neutral
+
+                                                            </Button>
+
+                                                                <Button disabled={review.sentiment==2?true:false} variant={review.sentiment==2?"primary":"muted"} className='btn-sm'
+                                                                    onClick={() => sentimentHandler(review._id, 2)}>
+                                                               Positive
+
+                                                            </Button>
+
+                                                        </td>
+
+
+
+                                                        <td>
+                                                             {review.hide==-1?
+                                                                (<Button variant='warning' className='btn-sm' data-toggle="tooltip" data-placement="top" title="Show"
+                                                                    onClick={() => hideHandler(review._id, 1, 'hide')}>
+                                                                <i className='fas fa-eye'></i>
+
+                                                            </Button>):
+                                                                (<Button variant='muted' className='btn-sm' data-toggle="tooltip" data-placement="top" title="Hide"
+                                                                    onClick={() => hideHandler(review._id, -1,'show')}>
+                                                                <i className='fas fa-eye-slash'></i>
+
+                                                            </Button>)}
                                                             <Button variant='danger' className='btn-sm'
-                                                                    onClick={() => deleteHandler(product._id)}>
+                                                                    onClick={() => deleteHandler(review._id)}>
                                                                 <i className='fas fa-trash'></i>
                                                             </Button>
                                                         </td>
@@ -328,7 +398,7 @@ function ProductListScreen({history, match}) {
                                                             <Link
                                                                 className="page-link waves-effect waves-effect"
 
-                                                                to={`/admin/productlist/page/${page == 1 ? 1 : page - 1}`}
+                                                                to={`/admin/reviewlist/page/${page == 1 ? 1 : page - 1}`}
                                                             >
 
                                                                 <span aria-hidden="true">«</span>
@@ -344,7 +414,7 @@ function ProductListScreen({history, match}) {
                                                                     <Link
                                                                         className="page-link waves-effect waves-effect"
                                                                         key={x}
-                                                                        to={`/admin/productlist/page/${x}`}
+                                                                        to={`/admin/reviewlist/page/${x}`}
                                                                     >
                                                                         {x}
                                                                     </Link>
@@ -358,7 +428,7 @@ function ProductListScreen({history, match}) {
                                                             <Link
                                                                 className="page-link waves-effect waves-effect"
 
-                                                                to={`/admin/productlist/page/${page >= pages ? pages : page + 1}`}
+                                                                to={`/admin/reviewlist/page/${page >= pages ? pages : page + 1}`}
                                                             >
 
                                                                 <span aria-hidden="true">»</span>
@@ -391,4 +461,4 @@ function ProductListScreen({history, match}) {
     )
 }
 
-export default ProductListScreen
+export default ReviewListScreen

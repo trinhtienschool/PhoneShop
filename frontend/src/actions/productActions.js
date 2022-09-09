@@ -56,7 +56,12 @@ import {
     SIMILAR_WORD_CLOUD_FAIL,
     USER_BUY_PRODUCT_REQUEST,
     USER_BUY_PRODUCT_SUCCESS,
-    USER_BUY_PRODUCT_FAIL
+    USER_BUY_PRODUCT_FAIL,
+    REVIEW_ALL_LIST_SUCCESS,
+    REVIEW_ALL_LIST_FAIL,
+    REVIEW_ALL_LIST_REQUEST,
+    REVIEW_DELETE_REQUEST,
+    REVIEW_UPDATE_REQUEST, REVIEW_UPDATE_SUCCESS, REVIEW_UPDATE_FAIL
 
 } from '../constants/productConstants'
 
@@ -103,6 +108,28 @@ export const listAllProducts = (page) => async (dispatch) => {
     } catch (error) {
         dispatch({
             type: PRODUCT_ALL_LIST_FAIL,
+            payload: error.response && error.response.data.detail
+                ? error.response.data.detail
+                : error.message,
+        })
+    }
+}
+
+export const listAllReviews = (page) => async (dispatch) => {
+    try {
+        dispatch({ type: REVIEW_ALL_LIST_REQUEST })
+
+        console.log("Page: ",page)
+        const { data } = await axios.get(`/api/products/reviews?page=${page}`)
+
+        dispatch({
+            type: REVIEW_ALL_LIST_SUCCESS,
+            payload: data
+        })
+
+    } catch (error) {
+        dispatch({
+            type: REVIEW_ALL_LIST_FAIL,
             payload: error.response && error.response.data.detail
                 ? error.response.data.detail
                 : error.message,
@@ -367,6 +394,9 @@ export const deleteProduct = (id) => async (dispatch, getState) => {
 
 
 
+
+
+
 export const createProduct = () => async (dispatch, getState) => {
     try {
         dispatch({
@@ -444,6 +474,47 @@ export const updateProduct = (product) => async (dispatch, getState) => {
     } catch (error) {
         dispatch({
             type: PRODUCT_UPDATE_FAIL,
+            payload: error.response && error.response.data.detail
+                ? error.response.data.detail
+                : error.message,
+        })
+    }
+}
+
+
+export const updateReview = (review) => async (dispatch, getState) => {
+    try {
+        dispatch({
+            type: REVIEW_UPDATE_REQUEST
+        })
+
+        const {
+            userLogin: { userInfo },
+        } = getState()
+
+        const config = {
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${userInfo.token}`
+            }
+        }
+
+        const { data } = await axios.put(
+            `/api/products/update-sentiment-review/${review._id}/`,
+            review,
+            config
+        )
+        dispatch({
+            type: REVIEW_UPDATE_SUCCESS,
+            payload: data,
+        })
+
+
+
+
+    } catch (error) {
+        dispatch({
+            type: REVIEW_UPDATE_FAIL,
             payload: error.response && error.response.data.detail
                 ? error.response.data.detail
                 : error.message,

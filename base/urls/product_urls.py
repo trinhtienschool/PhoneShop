@@ -17,6 +17,9 @@ urlpatterns = [
     path('top/', views.getTopProducts, name='top-products'),
     path('categories/', views.getCategories, name='category-list'),
     path('random-products/', views.getRandomProduct, name='random-products'),
+    path('reviews/', views.getReviews, name='get-reviews'),
+    path('update-sentiment-review/<str:pk>/', views.updateSentiment, name='update-sentiment-review'),
+    path('get-review-management',views.getReviewManagement,name='get-review-management'),
     path('products-id-name/', views.getProductIdName, name='products-id-name'),
     path('<str:pk>/', views.getProduct, name="product"),
 
