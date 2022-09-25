@@ -1,3 +1,3 @@
 # PhoneShop
 ## Phone shop integrated Sentiment analysis
-Link video demo: https://www.youtube.com/watch?v=41EzlZZTrrw
+Link video demo: https://youtu.be/8Ar0ZoK_SkY
